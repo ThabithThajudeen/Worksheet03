@@ -10,10 +10,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     private Button[] noteButtons;
+    private int noteCount =0;
+
     private int clickCount = 0;
+    private List<String> noteList = new ArrayList<>();
 
     ActivityResultLauncher<Intent> detailActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -21,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
                 if (result.getResultCode() == RESULT_OK) {
                     Intent intent = result.getData();
                     String amount = intent.getStringExtra("NoteAmount");
-
+                    noteList.add(amount);
+                    noteCount++;
                 }
             }
     );
@@ -38,12 +45,23 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.noteThree),
         findViewById(R.id.noteFour),
         };
+        for (int i = 0; i < noteButtons.length; i++) {
+            noteButtons[i].setVisibility(View.INVISIBLE);
+            final int noteIndex = i;
+            noteButtons[i].setOnClickListener(view -> {
+                startNoteClassActivity(noteIndex);
+            });
+        }
+
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (clickCount < noteButtons.length) {
                     noteButtons[clickCount].setVisibility(View.VISIBLE);
+
+                    //final int noteIndex = i;
+
                     clickCount++;
                 }
                 Intent intent = new Intent(MainActivity.this, NoteClass.class);
@@ -52,6 +70,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+    private void startNoteClassActivity(int noteIndex) {
+        Intent intent = new Intent(MainActivity.this, NoteClass.class);
+        intent.putExtra("noteIndex", noteIndex);
+        detailActivityLauncher.launch(intent);
     }
 
 
